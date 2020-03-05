@@ -95,6 +95,14 @@ void mainwin::loop()
 	    		cv::cvtColor(frame, src, CV_BGR2RGB);
 			if(gateui>0)
 				gateui->feed(frame);
+			if(redbucketui>0)
+				redbucketui->feed(frame);
+			if(bluebucketui>0)
+				bluebucketui->feed(frame);
+			if(redflareui>0)
+				redflareui->feed(frame);
+			if(yellowflareui>0)
+				yellowflareui->feed(frame);	
  		 	
 			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
 			
@@ -107,9 +115,20 @@ void mainwin::loop()
     		 if(!src.empty()) {
 			if(gateui>0)
 				gateui->feed(src);
- 		 	cv::cvtColor(src, src, CV_BGR2RGB);
+
+			if(redbucketui>0)
+				redbucketui->feed(src);
+			if(bluebucketui>0)
+				bluebucketui->feed(src);
+			if(redflareui>0)
+				redflareui->feed(src);
+			if(yellowflareui>0)
+				yellowflareui->feed(src);	
+ 		 	
+			 cv::cvtColor(src, src, CV_BGR2RGB);
 			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
 			
+		
 		}
 
 	}
