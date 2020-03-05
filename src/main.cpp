@@ -1,3 +1,4 @@
+//written by Sayansree paria
 #include "tiburon_gui/mainwin.h"
 #include <QApplication>
 int main(int argc, char *argv[]) {

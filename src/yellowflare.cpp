@@ -1,3 +1,4 @@
+//written by devidutta
 #include "tiburon_gui/yellowflare.h"
 #include "ui_yellowflare.h"
 #include <iostream>
