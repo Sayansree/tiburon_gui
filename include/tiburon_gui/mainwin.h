@@ -31,27 +31,33 @@ static cv::Mat frame;
 
 class mainwin : public QMainWindow {
   Q_OBJECT
- 
+
 public:
-  explicit mainwin(QWidget *parent = 0);
+  explicit mainwin(image_transport::ImageTransport*,QWidget *parent = 0);
   ~mainwin();
 
-	
+
 public slots:
-    	void Gate();
-    	void RedBucket();
+  void Gate();
+  void RedBucket();
  	void BlueBucket();
 	void RedFlare();
 	void YellowFlare();
 	void play();
-        void loop();
+  void loop();
 	void load();
+  void load2();
+  void load3();
+  void feed_cont(int);
+
 	void play_speed(int);
 	void inp(int);
 	static void rosimg(const sensor_msgs::ImageConstPtr&);
 //image_transport::ImageTransport it;
 
 private:
+  void hide();
+  void cam_change();
   	Ui::mainwin *ui;
   	gate    *gateui=NULL;
   	redbucket *redbucketui=NULL;
@@ -61,8 +67,11 @@ private:
 	QTimer *timer;
 	cv::VideoCapture cap;
 	 bool rosf=false;
-  	std::string LOGO_PATH,VIDEO_PATH, ROS_PATH, str,frame_name;
+  	std::string LOGO_PATH,VIDEO_PATH, FRONT_CAM_PATH,BOTTOM_CAM_PATH, str,frame_name;
   	int speed=50;
+    image_transport::ImageTransport *it;
+    image_transport::Subscriber sub;
+    bool BottomCam=false;
 };
 
 #endif // FRAMER_H
