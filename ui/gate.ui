@@ -7,12 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>967</width>
-    <height>763</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="font">
    <font>
     <pointsize>1</pointsize>
+    <stylestrategy>PreferAntialias</stylestrategy>
    </font>
   </property>
   <property name="windowTitle">
@@ -67,7 +68,7 @@
     <property name="geometry">
      <rect>
       <x>810</x>
-      <y>660</y>
+      <y>740</y>
       <width>81</width>
       <height>41</height>
      </rect>
@@ -260,11 +261,14 @@
     </property>
    </widget>
    <widget class="QComboBox" name="out_channel">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>548</x>
+      <x>450</x>
       <y>680</y>
-      <width>141</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -278,7 +282,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Thresholding</string>
+      <string>HSVThresholding</string>
      </property>
     </item>
     <item>
@@ -289,11 +293,6 @@
     <item>
      <property name="text">
       <string>Sobel</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>HoughLinesProb</string>
      </property>
     </item>
    </widget>
@@ -370,8 +369,8 @@
    <widget class="QSlider" name="sobel">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>590</y>
+      <x>30</x>
+      <y>720</y>
       <width>211</width>
       <height>20</height>
      </rect>
@@ -466,7 +465,7 @@
      <rect>
       <x>290</x>
       <y>680</y>
-      <width>251</width>
+      <width>151</width>
       <height>31</height>
      </rect>
     </property>
@@ -966,8 +965,8 @@
    <widget class="QLabel" name="label_18">
     <property name="geometry">
      <rect>
-      <x>790</x>
-      <y>620</y>
+      <x>80</x>
+      <y>750</y>
       <width>111</width>
       <height>16</height>
      </rect>
@@ -1027,6 +1026,329 @@
     </property>
     <property name="text">
      <string>THRESHOLD</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>630</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>SOBEL THRESHOLD</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sob_thres">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>600</y>
+      <width>211</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="singleStep">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>810</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>MEDIAN KERNEL</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QSlider" name="median_kernal">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>780</y>
+      <width>211</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>7</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="out_channel_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>680</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>Sobel</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Threshold</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dilate</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>MorphTransform</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>MedianBlur</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="out_channel_3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>800</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>MeargedFeed</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>HoughLinesProb</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QCheckBox" name="GrayCheck">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>719</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>ArrowCursor</cursorShape>
+    </property>
+    <property name="text">
+     <string>Gray-Sobel</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="HSVCheck">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>720</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>HSV-Sobel</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="outLabel_2">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>720</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Noto Sans Mono CJK JP</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Select Model</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="outLabel_3">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>800</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Noto Sans Mono CJK JP</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Output Feed</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="merge">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>760</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>OR</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>AND</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>XOR</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="outLabel_4">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>760</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Noto Sans Mono CJK JP</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Mearge Operation</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

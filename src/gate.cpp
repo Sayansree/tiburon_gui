@@ -6,13 +6,13 @@
 gate::gate(QWidget *parent) : QMainWindow(parent), ui(new Ui::gate) {
   LOGO_PATH = ros::package::getPath("tiburon_gui") + "/utils/logo.jpeg";
   CONFIG_PATH = ros::package::getPath("tiburon_gui")+ "/config/gate_config.dat";
-	
+
   ui->setupUi(this);
 
   cv::Mat frame_save=cv::imread(LOGO_PATH);
   cv::cvtColor(frame_save, frame_save, CV_BGR2RGB);
   ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)));
-  
+
   	outf.open(CONFIG_PATH,std::ios::in);
 	for(int i=0;i<12;i++)
 	outf>>HSV[i];
@@ -21,11 +21,20 @@ gate::gate(QWidget *parent) : QMainWindow(parent), ui(new Ui::gate) {
 	outf>>threshold;
 	outf>>minLineLength;
 	outf>>minLineGap;
-	outf.close();	
-	
+  outf>>th_sob;
+  outf>>med_kernal;
+	outf.close();
+
   connect(ui->save, SIGNAL(pressed()), this, SLOT(save()));
-  connect(ui->channel, SIGNAL(currentIndexChanged(int)),this,SLOT(channel(int)));
-  connect(ui->out_channel,SIGNAL(currentIndexChanged(int)),this,SLOT(out_chan(int)));
+    connect(ui->channel, SIGNAL(currentIndexChanged(int)),this,SLOT(channel(int)));
+  connect(ui->out_channel,SIGNAL(activated(int)),this,SLOT(out_chan(int)));
+  connect(ui->out_channel_2,SIGNAL(activated(int)),this,SLOT(out_chan_2(int)));
+  connect(ui->out_channel_3,SIGNAL(activated(int)),this,SLOT(out_chan_3(int)));
+  connect(ui->merge,SIGNAL(currentIndexChanged(int)),this,SLOT(Merge(int)));
+
+  connect(ui->GrayCheck,SIGNAL(stateChanged(int)),this,SLOT(CheckGray(int)));
+  connect(ui->HSVCheck,SIGNAL(stateChanged(int)),this,SLOT(CheckHSV(int)));
+
 	  ui->hmin->setSliderPosition(HSV[0]);
   connect(ui->hmin,SIGNAL(valueChanged(int)),this,SLOT(h(int)));
 	  ui->smin->setSliderPosition(HSV[1]);
@@ -52,6 +61,8 @@ gate::gate(QWidget *parent) : QMainWindow(parent), ui(new Ui::gate) {
   connect(ui->vmax_2,SIGNAL(valueChanged(int)),this,SLOT(V2(int)));
 	  ui->sobel->setSliderPosition(S_sob);
   connect(ui->sobel,SIGNAL(valueChanged(int)),this,SLOT(sob(int)));
+    ui->sob_thres->setSliderPosition(th_sob);
+connect(ui->sob_thres,SIGNAL(valueChanged(int)),this,SLOT(sob_thres(int)));
 	  ui->open_morph->setSliderPosition(S_op);
   connect(ui->open_morph,SIGNAL(valueChanged(int)),this,SLOT(opn(int)));
 	  ui->HL_th->setSliderPosition(threshold);
@@ -60,6 +71,8 @@ gate::gate(QWidget *parent) : QMainWindow(parent), ui(new Ui::gate) {
   connect(ui->HL_mll,SIGNAL(valueChanged(int)),this,SLOT(minLine(int)));
 	  ui->HL_mlg->setSliderPosition(minLineGap);
   connect(ui->HL_mlg,SIGNAL(valueChanged(int)),this,SLOT(minGap(int)));
+  ui->median_kernal->setSliderPosition(med_kernal);
+connect(ui->median_kernal,SIGNAL(valueChanged(int)),this,SLOT(median_ker(int)));
   //connect(ui->hmin,&QSlider::valueChanged(int),[this](int v){this->hsv(v,0);});
 
 
@@ -86,58 +99,126 @@ void gate::V2(int val){HSV[11]=val;}
 void gate::opn(int val){S_op=val;}
 void gate::sob(int val){S_sob=val;}
 void gate::out_chan(int val){out_ch=val;}
+void gate::out_chan_2(int val){out_ch=3+val;}
+void gate::out_chan_3(int val){out_ch=8+val;}
 void gate::Threshold(int val){threshold=val;}
 void gate::minLine(int val){minLineLength=val;}
 void gate::minGap(int val){minLineGap=val;}
-
-void gate::feed(cv::Mat img)
+void gate::sob_thres(int val){th_sob=val;}
+void gate::median_ker(int val){med_kernal=val;}
+void gate::CheckGray(int val)
 {
-	
-if(!img.empty()) {
-	cv::Mat dx,maskl,maskl2,maskr,maskr2,mask,fin_img;
-	cv::Scalar maxHSV,minHSV;
-	channel_show(img);
-        cv::GaussianBlur( img, mask, cv::Size( 9, 9 ), 0, 0 );
-        cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
+  graycheck=val;
+  ui->out_channel_2->setEnabled(graycheck);
+  ui->out_channel_3->setEnabled(graycheck|hsvcheck);
+  ui->merge->setEnabled(graycheck&hsvcheck);
+
+}
+void gate::CheckHSV(int val)
+{
+  hsvcheck=val;
+  ui->out_channel->setEnabled(hsvcheck);
+  ui->out_channel_3->setEnabled(graycheck|hsvcheck);
+  ui->merge->setEnabled(graycheck&hsvcheck);
+}
+void gate::Merge(int val){merg=val;}
+
+cv::Mat gate::gate2(cv::Mat img, cv::Mat* fin_img) ///suggested by vaibhav bhaiya
+{
+  cv::Mat dx,mask1,mask2,mask;
+  cv::cvtColor(img, mask, cv::COLOR_BGR2GRAY);
+  cv::Sobel(mask, dx,  CV_16S, 1,0, S_sob);
+  cv::convertScaleAbs(dx, mask);
+	if(out_ch==3)cv::cvtColor(mask, *fin_img, cv::COLOR_GRAY2RGB);
+  cv::inRange(mask, th_sob, 255, mask1);
+  if(out_ch==4)cv::cvtColor(mask1, *fin_img, cv::COLOR_GRAY2RGB);
+	cv::Mat kernel = cv::getStructuringElement( cv::MORPH_RECT,cv::Size( S_op,S_op ),cv::Point(S_op/2,S_op/2) );
+  cv::dilate(mask1, mask1, kernel);
+  if(out_ch==5)cv::cvtColor(mask1, *fin_img, cv::COLOR_GRAY2RGB);
+	cv::morphologyEx(mask1, mask1, cv::MORPH_OPEN, kernel);
+  if(out_ch==6)cv::cvtColor(mask1, *fin_img, cv::COLOR_GRAY2RGB);
+  cv::medianBlur(mask1, mask2, med_kernal);
+  if(out_ch==7)cv::cvtColor(mask2, *fin_img, cv::COLOR_GRAY2RGB);
+  return mask2;
+}
+
+cv::Mat gate::gate1(cv::Mat img , cv::Mat* fin_img)///made by sayansree paria
+{
+  cv::Mat dx,maskl,maskl2,maskr,maskr2,mask;
+  cv::Scalar maxHSV,minHSV;
+  cv::cvtColor(img, mask, cv::COLOR_BGR2HSV);
 	if(HSV[0]>0){
         minHSV = cv::Scalar(HSV[0],HSV[1],HSV[2]);
         maxHSV = cv::Scalar(HSV[3],HSV[4],HSV[5]);
         cv::inRange(mask, minHSV, maxHSV, maskl);
 	}else{
-	minHSV = cv::Scalar(0,HSV[1],HSV[2]);
+	      minHSV = cv::Scalar(0,HSV[1],HSV[2]);
         maxHSV = cv::Scalar(HSV[3],HSV[4],HSV[5]);
         cv::inRange(mask, minHSV, maxHSV, maskl);
-	minHSV = cv::Scalar(180+HSV[0],HSV[1],HSV[2]);
+	      minHSV = cv::Scalar(180+HSV[0],HSV[1],HSV[2]);
         maxHSV = cv::Scalar(180,HSV[4],HSV[5]);
         cv::inRange(mask, minHSV, maxHSV, maskl2);
-	maskl=maskl|maskl2;
+	      maskl=maskl|maskl2;
 	}
 	if(HSV[6]>0){
-	minHSV = cv::Scalar(HSV[6],HSV[7],HSV[8]);
+	      minHSV = cv::Scalar(HSV[6],HSV[7],HSV[8]);
         maxHSV = cv::Scalar(HSV[9],HSV[10],HSV[11]);
         cv::inRange(mask, minHSV, maxHSV, maskr);
-	}else{	
-	minHSV = cv::Scalar(0,HSV[7],HSV[8]);
+	}else{
+	      minHSV = cv::Scalar(0,HSV[7],HSV[8]);
         maxHSV = cv::Scalar(HSV[9],HSV[10],HSV[11]);
-        cv::inRange(mask, minHSV, maxHSV, maskr);	
-	minHSV = cv::Scalar(180+HSV[6],HSV[7],HSV[8]);
+        cv::inRange(mask, minHSV, maxHSV, maskr);
+	      minHSV = cv::Scalar(180+HSV[6],HSV[7],HSV[8]);
         maxHSV = cv::Scalar(180,HSV[10],HSV[11]);
         cv::inRange(mask, minHSV, maxHSV, maskr2);
-	maskr=maskr|maskr2;
+	      maskr=maskr|maskr2;
 	}
 	mask=maskl|maskr;
-	if(out_ch==0)cv::cvtColor(mask, fin_img, cv::COLOR_GRAY2RGB);
+	if(out_ch==0)cv::cvtColor(mask, *fin_img, cv::COLOR_GRAY2RGB);
 	cv::Mat kernel = cv::getStructuringElement( cv::MORPH_RECT,cv::Size( S_op,S_op ),cv::Point(S_op/2,S_op/2) );
 	cv::morphologyEx(mask, mask, cv::MORPH_OPEN, kernel);
-	if(out_ch==1)cv::cvtColor(mask, fin_img, cv::COLOR_GRAY2RGB);
+	if(out_ch==1)cv::cvtColor(mask, *fin_img, cv::COLOR_GRAY2RGB);
 	cv::Sobel(mask, dx,  CV_16S, 1,0, S_sob);
-        cv::convertScaleAbs(dx, mask);
-	if(out_ch==2)cv::cvtColor(mask, fin_img, cv::COLOR_GRAY2RGB);
-	std::vector <cv::Vec4i> lines; 	     	
-        cv::HoughLinesP(mask, lines, 1, CV_PI/180, threshold,minLineLength,minLineGap );
+  cv::convertScaleAbs(dx, mask);
+	if(out_ch==2)cv::cvtColor(mask, *fin_img, cv::COLOR_GRAY2RGB);
+
+  return mask;
+}
+
+void gate::feed(cv::Mat img)
+{
+
+if(!img.empty()) {
+	cv::Mat mask,fin_img,img2,img1,imgc;
+
+	channel_show(img);
+  cv::GaussianBlur( img, mask, cv::Size( 9, 9 ), 0, 0 );
+  //model selection
+  if(hsvcheck)
+  img1=gate1(mask,&fin_img);
+  if(graycheck)
+  img2=gate2(mask,&fin_img);
+  //merging
+  if(graycheck&&hsvcheck)
+  {
+  switch(merg)
+  {
+    case 0:imgc=img1|img2;break;
+    case 1:imgc=img1&img2;break;
+    case 2:imgc=img1^img2;break;
+  }}
+  else if(graycheck)
+  imgc=img2;
+  else if (hsvcheck)
+  imgc=img1;
+  else return;
+  if(out_ch==8)
+   cv::cvtColor(imgc,fin_img,cv::COLOR_GRAY2RGB);
+	std::vector <cv::Vec4i> lines;
+  cv::HoughLinesP(imgc, lines, 1, CV_PI/180, threshold,minLineLength,minLineGap );
 		for( size_t i = 0; i < lines.size(); i++ )
 	    	{
-			
+
 			cv::Vec4i l = lines[i];
 			int x1=l[0],x2=l[2],y1=l[1],y2=l[3];
 			double th=(x1==x2)?90:atan(1.0*(y2-y1)/(x2-x1))*180/CV_PI;
@@ -145,19 +226,19 @@ if(!img.empty()) {
 			{	int xx=(x1+x2)/2;
 				line( img, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,255,0), 3, cv::LINE_AA);
 			}
-			
+
 	    	}
-	if(out_ch==3)
+	 if(out_ch==9)
 		cv::cvtColor(img,fin_img,cv::COLOR_BGR2RGB);
-	
+
     ui->out->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)));
 
-    }	
+    }
 }
 
 void gate::save()
 {
-	
+
 	outf.open(CONFIG_PATH,std::ios::out);
 	for(int i=0;i<12;i++)
 	outf<<HSV[i]<<std::endl;
@@ -166,6 +247,8 @@ void gate::save()
 	outf<<threshold<<std::endl;
 	outf<<minLineLength<<std::endl;
 	outf<<minLineGap<<std::endl;
+  outf<<th_sob<<std::endl;
+  outf<<med_kernal<<std::endl;
 	outf.close();
 }
 void gate::channel_show(cv::Mat img)
@@ -193,7 +276,7 @@ void gate::channel_show(cv::Mat img)
 		Channels[2]=zero;
 		merge(Channels, fin_img);
 		break;
-		
+
 		case 3:
 		split(img, Channels);
 		Channels[2]=Channels[0];
@@ -221,7 +304,7 @@ void gate::channel_show(cv::Mat img)
 		Channels[2]=zero;
 		merge(Channels, fin_img);
 		break;
-		
+
 		case 7:
 		cv::cvtColor(img, fin_img, CV_BGR2HSV);
 		split(img, Channels);
@@ -240,4 +323,3 @@ void gate::channel_show(cv::Mat img)
 	}
         ui->channel_show->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)));
 }
-

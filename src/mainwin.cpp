@@ -7,13 +7,13 @@ mainwin::mainwin(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainwin){
   LOGO_PATH = ros::package::getPath("tiburon_gui") + "/utils/logo.jpeg";
   VIDEO_PATH = ros::package::getPath("tiburon_gui")+"/src/gate.avi";
   //ROS_PATH =  "cam1";
-	
+
  	ui->setupUi(this);
-	
+
 	//ros::NodeHandle nh;
   	//image_transport::Subscriber sub;
  	//sub = it.subscribe("cam1", 1, rosimg);
-		
+
 	ui->video_text->setText(QString::fromStdString(VIDEO_PATH));
 	timer = new QTimer(this);
 	cap.open(VIDEO_PATH);
@@ -32,7 +32,7 @@ mainwin::mainwin(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainwin){
 	connect(ui->redFlare, SIGNAL(pressed()), this, SLOT(RedFlare()));
 	connect(ui->yellowFlare, SIGNAL(pressed()), this, SLOT(YellowFlare()));
 
- 
+
 
 }
 
@@ -93,43 +93,41 @@ void mainwin::loop()
   	if( rosf)
 	{
     		 if(!frame.empty()) {
-	    		cv::cvtColor(frame, src, CV_BGR2RGB);
 			if(gateui>0)
-				gateui->feed(frame);
+				gateui->feed(frame.clone());
 			if(redbucketui>0)
-				redbucketui->feed(frame);
+				redbucketui->feed(frame.clone());
 			if(bluebucketui>0)
-				bluebucketui->feed(frame);
+				bluebucketui->feed(frame.clone());
 			if(redflareui>0)
-				redflareui->feed(frame);
+				redflareui->feed(frame.clone());
 			if(yellowflareui>0)
-				yellowflareui->feed(frame);	
- 		 	
+				yellowflareui->feed(frame.clone());
+ 		 		cv::cvtColor(frame, src, CV_BGR2RGB);
 			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
-			
+
 		}
 
 	}else if( cap.isOpened())
 	{
-		
+
 		 cap >> src;
     		 if(!src.empty()) {
 			if(gateui>0)
-				gateui->feed(src);
-
+				gateui->feed(src.clone());
 			if(redbucketui>0)
-				redbucketui->feed(src);
+				redbucketui->feed(src.clone());
 			if(bluebucketui>0)
-				bluebucketui->feed(src);
+				bluebucketui->feed(src.clone());
 			if(redflareui>0)
-				redflareui->feed(src);
+				redflareui->feed(src.clone());
 			if(yellowflareui>0)
-				yellowflareui->feed(src);	
- 		 	
+				yellowflareui->feed(src.clone());	
+
 			 cv::cvtColor(src, src, CV_BGR2RGB);
 			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
-			
-		
+
+
 		}
 
 	}

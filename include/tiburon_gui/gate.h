@@ -26,7 +26,7 @@ public:
   	~gate();
 	void feed(cv::Mat);
 	Ui::gate *ui;
-	
+
 public slots:
 	void save();
 	void channel(int);
@@ -46,20 +46,35 @@ public slots:
 	void opn(int );
 	void sob(int );
 	void out_chan(int );
+  void out_chan_2(int );
 	void Threshold(int );
 	void minLine(int );
 	void minGap(int );
+  void sob_thres(int);
+  void out_chan_3(int);
+  void median_ker(int);
+  void CheckHSV(int);
+  void CheckGray(int);
+  void Merge(int);
 
 private:
+  enum merging { OR,AND,XOR};
   	void channel_show(cv::Mat);
+    cv::Mat gate2(cv::Mat,cv::Mat*);
+    cv::Mat gate1(cv::Mat,cv::Mat*);
 	int HSV[12];
 	int S_op=1;
 	int S_sob=1;
-	int out_ch=0;
+	int out_ch=-1;
   	int ch_index=0;
 	int threshold=0;
 	int minLineLength=0;
 	int minLineGap=0;
+  int th_sob=0;
+  int med_kernal=1;
+  bool hsvcheck=false;
+  bool graycheck=false;
+  int merg=0;
 	std::fstream outf;
   cv::VideoCapture cap;
   std::string LOGO_PATH, CONFIG_PATH;
