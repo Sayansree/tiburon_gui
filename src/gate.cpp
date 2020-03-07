@@ -11,7 +11,7 @@ gate::gate(QWidget *parent) : QMainWindow(parent), ui(new Ui::gate) {
 
   cv::Mat frame_save=cv::imread(LOGO_PATH);
   cv::cvtColor(frame_save, frame_save, CV_BGR2RGB);
-  ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)));
+  ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)).scaled(ui->logo->size()));
 
   	outf.open(CONFIG_PATH,std::ios::in);
 	for(int i=0;i<12;i++)
@@ -231,7 +231,7 @@ if(!img.empty()) {
 	 if(out_ch==9)
 		cv::cvtColor(img,fin_img,cv::COLOR_BGR2RGB);
 
-    ui->out->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)));
+    ui->out->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)).scaled(ui->out->size()));
 
     }
 }
@@ -321,5 +321,5 @@ void gate::channel_show(cv::Mat img)
 		merge(Channels, fin_img);
 		break;
 	}
-        ui->channel_show->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)));
+        ui->channel_show->setPixmap(QPixmap::fromImage(QImage(fin_img.data, fin_img.cols, fin_img.rows,fin_img.step, QImage::Format_RGB888)).scaled(ui->channel_show->size()));
 }

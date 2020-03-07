@@ -22,7 +22,7 @@ mainwin::mainwin(image_transport::ImageTransport *it,QWidget *parent) : QMainWin
 	cap.open(VIDEO_PATH);
   	cv::Mat frame_save=cv::imread(LOGO_PATH);
   	cv::cvtColor(frame_save, frame_save, CV_BGR2RGB);
-  	ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)));
+  	ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)).scaled(ui->logo->size()));
 
 	connect(timer, SIGNAL(timeout()),this,SLOT(loop()));
 	connect(ui->rate, SIGNAL(currentIndexChanged(int)),this,SLOT(play_speed(int)));
@@ -146,7 +146,7 @@ void mainwin::loop()
 			if(yellowflareui>0)
 				yellowflareui->feed(frame.clone());
  		 		cv::cvtColor(frame, src, CV_BGR2RGB);
-			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
+			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
 
 		}
 
@@ -167,7 +167,7 @@ void mainwin::loop()
 				yellowflareui->feed(src.clone());
 
 			 cv::cvtColor(src, src, CV_BGR2RGB);
-			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)));
+			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
 
 
 		}
