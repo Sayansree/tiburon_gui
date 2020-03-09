@@ -28,6 +28,7 @@ namespace Ui {
 class mainwin;
 }
 static cv::Mat frame;
+static   int play_mode;
 
 class mainwin : public QMainWindow {
   Q_OBJECT
@@ -53,6 +54,7 @@ public slots:
 	void play_speed(int);
 	void inp(int);
 	static void rosimg(const sensor_msgs::ImageConstPtr&);
+
 //image_transport::ImageTransport it;
 
 private:
@@ -69,6 +71,7 @@ private:
 	 bool rosf=false;
   	std::string LOGO_PATH,VIDEO_PATH, FRONT_CAM_PATH,BOTTOM_CAM_PATH, str,frame_name;
   	int speed=50;
+
     image_transport::ImageTransport *it;
     image_transport::Subscriber sub;
     bool BottomCam=false;

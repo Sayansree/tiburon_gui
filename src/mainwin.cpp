@@ -23,7 +23,7 @@ mainwin::mainwin(image_transport::ImageTransport *it,QWidget *parent) : QMainWin
   	cv::Mat frame_save=cv::imread(LOGO_PATH);
   	cv::cvtColor(frame_save, frame_save, CV_BGR2RGB);
   	ui->logo->setPixmap(QPixmap::fromImage(QImage(frame_save.data, frame_save.cols, frame_save.rows,frame_save.step, QImage::Format_RGB888)).scaled(ui->logo->size()));
-
+  play_mode=false;
 	connect(timer, SIGNAL(timeout()),this,SLOT(loop()));
 	connect(ui->rate, SIGNAL(currentIndexChanged(int)),this,SLOT(play_speed(int)));
 	connect(ui->inputtype, SIGNAL(currentIndexChanged(int)),this,SLOT(inp(int)));
@@ -37,7 +37,7 @@ mainwin::mainwin(image_transport::ImageTransport *it,QWidget *parent) : QMainWin
 	connect(ui->blueBucket, SIGNAL(pressed()), this, SLOT(BlueBucket()));
 	connect(ui->redFlare, SIGNAL(pressed()), this, SLOT(RedFlare()));
 	connect(ui->yellowFlare, SIGNAL(pressed()), this, SLOT(YellowFlare()));
-
+  timer->start(speed);
 
 
 }
@@ -75,6 +75,7 @@ void mainwin::cam_change()
       ROS_ERROR("cv_bridge exception: %s", e.what());
 	return;
     }
+    if(play_mode)
 	frame= cv_ptr->image;
 }
 
@@ -101,14 +102,18 @@ void mainwin::play_speed(int val)
 }
 void mainwin::play()
 {
-	if(timer->isActive())
-	{
-		timer->stop();
+
+if (play_mode){	// if(timer->isActive())
+	// {
+	//	timer->stop();    //feed continues with still frame thresholding
 		ui->play->setText("play");
+
 	}else{
-		timer->start(speed);
+	//	timer->start(speed);
 		ui->play->setText("pause");
+
 	}
+  play_mode=!play_mode;
 }
 void mainwin::load()
 {
@@ -131,48 +136,40 @@ if(rosf&&BottomCam)cam_change();
 }
 void mainwin::loop()
 {
-	cv::Mat src;
-  	if( rosf)
-	{
-    		 if(!frame.empty()) {
-			if(gateui>0)
-				gateui->feed(frame.clone());
-			if(redbucketui>0)
-				redbucketui->feed(frame.clone());
-			if(bluebucketui>0)
-				bluebucketui->feed(frame.clone());
-			if(redflareui>0)
-				redflareui->feed(frame.clone());
-			if(yellowflareui>0)
-				yellowflareui->feed(frame.clone());
- 		 		cv::cvtColor(frame, src, CV_BGR2RGB);
-			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
+  cv::Mat src;
+  	if( !rosf&& cap.isOpened()&&play_mode)
+		 cap >> frame;
+     if(!frame.empty()) {
+  if(gateui>0)
+    gateui->feed(frame.clone());
+  if(redbucketui>0)
+    redbucketui->feed(frame.clone());
+  if(bluebucketui>0)
+    bluebucketui->feed(frame.clone());
+  if(redflareui>0)
+    redflareui->feed(frame.clone());
+  if(yellowflareui>0)
+    yellowflareui->feed(frame.clone());
+    cv::cvtColor(frame, src, CV_BGR2RGB);
+  ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
+    	// 	 if(!src.empty()) {
+			// if(gateui>0)
+			// 	gateui->feed(src.clone());
+			// if(redbucketui>0)
+			// 	redbucketui->feed(src.clone());
+			// if(bluebucketui>0)
+			// 	bluebucketui->feed(src.clone());
+			// if(redflareui>0)
+			// 	redflareui->feed(src.clone());
+			// if(yellowflareui>0)
+			// 	yellowflareui->feed(src.clone());
 
-		}
-
-	}else if( cap.isOpened())
-	{
-
-		 cap >> src;
-    		 if(!src.empty()) {
-			if(gateui>0)
-				gateui->feed(src.clone());
-			if(redbucketui>0)
-				redbucketui->feed(src.clone());
-			if(bluebucketui>0)
-				bluebucketui->feed(src.clone());
-			if(redflareui>0)
-				redflareui->feed(src.clone());
-			if(yellowflareui>0)
-				yellowflareui->feed(src.clone());
-
-			 cv::cvtColor(src, src, CV_BGR2RGB);
-			ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
+			//  cv::cvtColor(src, src, CV_BGR2RGB);
+			// ui->vid->setPixmap(QPixmap::fromImage(QImage(src.data, src.cols, src.rows,src.step, QImage::Format_RGB888)).scaled(ui->vid->size()));
 
 
 		}
 
-	}
 }
 
 
